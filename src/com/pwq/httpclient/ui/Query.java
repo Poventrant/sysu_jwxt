@@ -1,5 +1,6 @@
 package com.pwq.httpclient.ui;
 
+import com.pwq.httpclient.BaseUtil;
 import com.pwq.httpclient.JsonUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -36,19 +37,26 @@ public class Query extends JFrame {
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            setFont("微软雅黑");
-        }
-        catch (UnsupportedLookAndFeelException e) {
-        }
-        catch (ClassNotFoundException e) {
-        }
-        catch (InstantiationException e) {
-        }
-        catch (IllegalAccessException e) {
-        }
+            BaseUtil.setFont("微软雅黑");
+        } catch (UnsupportedLookAndFeelException | IllegalAccessException | InstantiationException | ClassNotFoundException e) { }
 
 
-        JFrame frame = new JFrame("中山大学第N方教务系统");
+        JFrame frame = new JFrame();
+        HttpGet httpget =util.getHttpGet(Paths.NAME);
+        try {
+            httpget.setHeader("Referer", "http://uems.sysu.edu.cn/jwxt/edp/innerindex.jsp");
+            httpget.setHeader("Upgrade-Insecure-Requests", "1");
+            String html = EntityUtils.toString(util.httpclient.execute(httpget).getEntity());
+            String pattern = "var\\s*fullname\\s*=\\s*'([^']*)";
+            Pattern reg = Pattern.compile(pattern);
+            Matcher m = reg.matcher(html);
+            if(m.find())frame.setTitle("欢迎使用中山大学第N方教务系统，" + m.group(1) + "同学");
+            else frame.setTitle("中山大学第N方教务系统");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            httpget.releaseConnection();
+        }
         try {
             InputStream iconStream = this.getClass().getResourceAsStream("/logo.jpg");
             frame.setIconImage(ImageIO.read(iconStream));
@@ -56,8 +64,8 @@ public class Query extends JFrame {
             e.printStackTrace();
         }
         frame.setResizable(true);
-        frame.setSize(820, 520);
-        frame.setMinimumSize(new Dimension(820, 520));
+        frame.setSize(870, 538);        //黄金分割率
+        frame.setMinimumSize(new Dimension(870, 538));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.pack();
@@ -65,7 +73,7 @@ public class Query extends JFrame {
         frame.setVisible(true);
 
         //查询学年，用于选择
-        HttpGet httpget = util.getHttpGet(Paths.ALLXN);
+        httpget = util.getHttpGet(Paths.ALLXN);
         HttpResponse response = null;
         Vector model = new Vector();
         try {
@@ -141,7 +149,7 @@ public class Query extends JFrame {
 
 
         //----------------------------------------------------------------------------------------------------------------
-        JLabel credit_title0 = new JLabel("学年度第一学期完成情况");
+        JLabel credit_title0 = new JLabel("学年度学期完成情况");
         JLabel credit_title1 = new JLabel("全部学年度学期完成情况");
         JLabel credit_title2 = new JLabel("主修专业毕业学分要求");
 
@@ -248,7 +256,6 @@ public class Query extends JFrame {
                 String mainXn = ((SelectItem) cbxn.getSelectedItem()).getValue(),
                         mainXq = ((SelectItem) cbxq.getSelectedItem()).getValue(),
                         mainPylb = ((SelectItem) cbpylb.getSelectedItem()).getValue();
-
 
                 HttpPost httppost = util.getHttpPost(Paths.KCCJLIST);
                 try {
@@ -443,7 +450,7 @@ public class Query extends JFrame {
                 }
 
                 //-----------------------更新表格界面---------------------------------------------------------------------------------------
-                credit_title0.setText(mainXn + "学年度第一学期完成情况");
+                credit_title0.setText(mainXn + "学年度第"+mainXq+"学期完成情况");
 
                 lTableModel.clearTable();
                 for(int i = 0; i < leftRows.length; ++ i) {
@@ -545,18 +552,4 @@ public class Query extends JFrame {
 
     private String proNo;
 
-
-    private void setFont(String fontType) {
-        UIManager.put("Button.font", fontType);
-//        UIManager.put("CheckBox.font", fontType);
-        UIManager.put("ComboBox.font", fontType);
-        UIManager.put("Label.font", fontType);
-//        UIManager.put("CheckBoxMenuItem.font", fontType);
-        UIManager.put("Panel.font", fontType);
-        UIManager.put("ScrollPane.font", fontType);
-        UIManager.put("TabbedPane.font", fontType);
-        UIManager.put("Table.font", fontType);
-        UIManager.put("TableHeader.font", fontType);
-        UIManager.put("PasswordField.font", fontType);
-    }
 }

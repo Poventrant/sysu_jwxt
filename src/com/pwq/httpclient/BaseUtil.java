@@ -11,6 +11,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.protocol.HttpContext;
 
+import javax.swing.*;
 import java.io.IOException;
 
 /**
@@ -54,5 +55,19 @@ public class BaseUtil {
                 .setCookieSpec(CookieSpecs.STANDARD_STRICT).setSocketTimeout(5000).
                         setConnectTimeout(5000).build();
         request.setConfig(requestConfig);
+    }
+
+    public static void setFont(String fontType) {
+        UIManager.put("Button.font", fontType);
+//        UIManager.put("CheckBox.font", fontType);
+        UIManager.put("ComboBox.font", fontType);
+        UIManager.put("Label.font", fontType);
+//        UIManager.put("CheckBoxMenuItem.font", fontType);
+        UIManager.put("Panel.font", fontType);
+        UIManager.put("ScrollPane.font", fontType);
+        UIManager.put("TabbedPane.font", fontType);
+        UIManager.put("Table.font", fontType);
+        UIManager.put("TableHeader.font", fontType);
+        UIManager.put("PasswordField.font", fontType);
     }
 }

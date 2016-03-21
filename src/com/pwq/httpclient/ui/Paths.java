@@ -8,6 +8,7 @@ public interface Paths {
     ENTRANCE = "http://uems.sysu.edu.cn/jwxt/",
     CAPTCHA = "http://uems.sysu.edu.cn/jwxt/jcaptcha",
     LOGIN = "http://uems.sysu.edu.cn/jwxt/j_unieap_security_check.do",
+    NAME = "http://uems.sysu.edu.cn/jwxt/edp/menu/RootMenu.jsp",
     MAIN = "http://uems.sysu.edu.cn/jwxt/edp/index.jsp",
     SCORE = "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj",
     LOGOUT = "http://uems.sysu.edu.cn/jwxt/logout.jsp",
