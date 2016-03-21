@@ -18,5 +18,6 @@ public interface Paths {
     ALLXF = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getAllXf",  //全部学年度学期完成情况--学分
     ALLJD = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getAllJd",  //全部学年度学期完成情况--平均绩点
     KCCJLIST = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getKccjList",
-    COUNTALL = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=countXfJd";
+    COUNTALL = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=countXfJd",
+    COURSES = "http://uems.sysu.edu.cn/jwxt/KcbcxAction/KcbcxAction.action?method=getList";
 }

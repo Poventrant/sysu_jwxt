@@ -97,4 +97,8 @@ public class PathsImpl implements Paths{
                 " {\"name\": \"nj\", \"type\": \"String\", \"value\": \"'"+grage+"'\", \"condition\": \" = \", \"property\": \"x.nj\"}, " +
                 "{\"name\": \"zyh\", \"type\": \"String\", \"value\": \"'"+pro+"'\", \"condition\": \" = \", \"property\": \"x.zyh\"}], \"args\": []}}}";
     }
+
+    public static String getCourses(String xn, String xq) {
+        return "{header:{\"code\": -100, \"message\": {\"title\": \"\", \"detail\": \"\"}},body:{dataStores:{},parameters:{\"args\": [\""+xq+"\", \""+xn+"\"], \"responseParam\": \"rs\"}}}";
+    }
 }

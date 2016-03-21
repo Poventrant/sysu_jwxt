@@ -134,7 +134,7 @@ public class Entrance extends JFrame {
                     } else {
                         deleteSavePassword();
                     }
-                    new Query().queryFrame(util, username);
+                    new Query().queryFrame(username);
                 } else {
                     errorHit.setText("用户名或密码或验证码非法");
                     t4.setIcon( new ImageIcon(util.getImage(Paths.CAPTCHA, util.httpclient) ) );
