@@ -240,13 +240,14 @@ public class Query extends JFrame {
             e.printStackTrace();
         }
 
+        CourseTable  courseTable = new CourseTable();
 
         queryCourse.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String mainXn = ((SelectItem) cbxn.getSelectedItem()).getValue(),
                         mainXq = ((SelectItem) cbxq.getSelectedItem()).getValue();
-                new CourseTable().renderTable(mainXn, mainXq);
+                courseTable.renderTable(mainXn, mainXq);
             }
         });
 

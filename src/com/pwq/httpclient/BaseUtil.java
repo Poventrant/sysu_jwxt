@@ -38,8 +38,8 @@ public class BaseUtil {
                             return true;
                         }
                     };
-                    HttpHost proxy = new HttpHost("127.0.0.1", 8888);       //开发时用
-                    httpclient = HttpClients.custom().setRetryHandler(myRetryHandler).setProxy(proxy).build();
+//                    HttpHost proxy = new HttpHost("127.0.0.1", 8888);       //开发时用
+                    httpclient = HttpClients.custom().setRetryHandler(myRetryHandler)/*.setProxy(proxy)*/.build();
                 }
             }
         }
