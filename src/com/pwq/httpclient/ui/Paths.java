@@ -8,6 +8,7 @@ public interface Paths {
     ENTRANCE = "http://uems.sysu.edu.cn/jwxt/",
     CAPTCHA = "http://uems.sysu.edu.cn/jwxt/jcaptcha",
     LOGIN = "http://uems.sysu.edu.cn/jwxt/j_unieap_security_check.do",
+    NAME = "http://uems.sysu.edu.cn/jwxt/edp/menu/RootMenu.jsp",
     MAIN = "http://uems.sysu.edu.cn/jwxt/edp/index.jsp",
     SCORE = "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj",
     LOGOUT = "http://uems.sysu.edu.cn/jwxt/logout.jsp",
@@ -17,5 +18,6 @@ public interface Paths {
     ALLXF = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getAllXf",  //全部学年度学期完成情况--学分
     ALLJD = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getAllJd",  //全部学年度学期完成情况--平均绩点
     KCCJLIST = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=getKccjList",
-    COUNTALL = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=countXfJd";
+    COUNTALL = "http://uems.sysu.edu.cn/jwxt/xscjcxAction/xscjcxAction.action?method=countXfJd",
+    COURSES = "http://uems.sysu.edu.cn/jwxt/KcbcxAction/KcbcxAction.action?method=getList";
 }
