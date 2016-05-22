@@ -4,11 +4,6 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Created by 枫叶 on 2016/1/18.
@@ -30,5 +25,6 @@ public class JavascriptUtil {
         }
         return res;
     }
+
 
 }

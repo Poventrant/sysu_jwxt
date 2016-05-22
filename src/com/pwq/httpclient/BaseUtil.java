@@ -1,6 +1,5 @@
 package com.pwq.httpclient;
 
-import org.apache.http.HttpHost;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -17,10 +16,8 @@ import java.io.IOException;
  * Created by 枫叶 on 2016/1/17.
  */
 public class BaseUtil {
-    private CloseableHttpClient httpclient = null;
-
-    public CloseableHttpClient getHttpClient() {
-        HttpRequestRetryHandler myRetryHandler = new HttpRequestRetryHandler() {
+    private static class Nested {
+        private static CloseableHttpClient instance = HttpClients.custom().setRetryHandler(new HttpRequestRetryHandler() {
             @Override
             public boolean retryRequest(IOException arg0, int executionCount, HttpContext arg2) {
                 System.out.println(executionCount + " times connecting failed, try again...");
@@ -30,11 +27,11 @@ public class BaseUtil {
                 }
                 return true;
             }
-        };
- //       HttpHost proxy = new HttpHost("127.0.0.1", 8888);       //开发时用
-        httpclient = HttpClients.custom().setRetryHandler(myRetryHandler)
-               /*.setProxy(proxy)*/.build();
-        return httpclient;
+        })/*.setProxy(new HttpHost("127.0.0.1", 8888))*/.build();
+    }
+
+    public CloseableHttpClient getHttpClient() {
+        return Nested.instance;
     }
 
     public HttpGet getHttpGet(String url) {
@@ -55,4 +52,5 @@ public class BaseUtil {
                         setConnectTimeout(5000).build();
         request.setConfig(requestConfig);
     }
+
 }

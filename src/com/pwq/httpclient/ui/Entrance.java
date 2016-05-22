@@ -2,13 +2,23 @@ package com.pwq.httpclient.ui;
 
 import com.pwq.httpclient.JavascriptUtil;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.BasicClientCookie;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,9 +48,9 @@ public class Entrance extends JFrame {
         }
 
         String [] savePwd = getPassword();
-        boolean flag = savePwd == null ? false : true;
+        final boolean flag = savePwd == null ? false : true;
 
-        JFrame frame = new JFrame("中山大学第N方教务系统");
+        final JFrame frame = new JFrame("中山大学第N方教务系统");
         try {
             InputStream iconStream = this.getClass().getResourceAsStream("/logo.jpg");
             frame.setIconImage(ImageIO.read(iconStream));
@@ -59,7 +69,7 @@ public class Entrance extends JFrame {
         JLabel t1 = new JLabel("用户名");
         t1.setBounds(30, 60, 50, 30);
         frame.add(t1);
-        JTextField field = new JTextField(flag?savePwd[0]:"");
+        final JTextField field = new JTextField(flag?savePwd[0]:"");
         field.setFont(font1);
         field.setBounds(new Rectangle(100, 60, 180, 25));
         frame.add(field);
@@ -67,7 +77,7 @@ public class Entrance extends JFrame {
         JLabel t2 = new JLabel("密码");
         t2.setBounds(30, 90, 50, 30);
         frame.add(t2);
-        JPasswordField tfPwd = new JPasswordField(flag?savePwd[1]:"");
+        final JPasswordField tfPwd = new JPasswordField(flag?savePwd[1]:"");
         tfPwd.setFont(font1);
         tfPwd.setBounds(new Rectangle(100, 90, 180, 25));
         frame.add(tfPwd);
@@ -75,16 +85,16 @@ public class Entrance extends JFrame {
         JLabel t3 = new JLabel("验证码");
         t3.setBounds(30, 120, 50, 30);
         frame.add(t3);
-        JTextField captcha = new JTextField();
+        final JTextField captcha = new JTextField();
         captcha.setFont(font1);
         captcha.setBounds(new Rectangle(100, 120, 180, 25));
         frame.add(captcha);
 
-        LoginUtil util = new LoginUtil();
+        final LoginUtil util = new LoginUtil();
 
         HttpGet httpget = util.getHttpGet(Paths.ENTRANCE);
         try {
-            HttpResponse response = util.httpclient.execute(httpget);
+            HttpResponse response = util.getHttpClient().execute(httpget);
             String html = EntityUtils.toString(response.getEntity());
             String pat = "id=\"rno\"[\\s]*name=\"rno\"[\\s]*value=([^>]*)";
             Pattern reg = Pattern.compile(pat);
@@ -99,13 +109,13 @@ public class Entrance extends JFrame {
         }
 
         //下载验证码图片
-        JLabel t4 = new JLabel();
-        t4.setIcon( new ImageIcon(util.getImage(Paths.CAPTCHA, util.httpclient) ) );
+        final JLabel t4 = new JLabel();
+        t4.setIcon( new ImageIcon(util.getImage(Paths.CAPTCHA, util.getHttpClient()) ) );
         t4.setBounds(300, 120, 100, 25);
         t4.setToolTipText("更换验证码");
         frame.add(t4);
 
-        JCheckBox cbxkclb3 = new JCheckBox("  记住密码  ");   //30
+        final JCheckBox cbxkclb3 = new JCheckBox("  记住密码  ");   //30
         if(flag) cbxkclb3.setSelected(true);
         cbxkclb3.setBounds(new Rectangle(100, 150, 100, 30));//参数分别是坐标x，y，宽，高
         frame.add(cbxkclb3);
@@ -115,7 +125,7 @@ public class Entrance extends JFrame {
         frame.add(btn);
 
         //错误提示
-        JLabel errorHit = new JLabel();
+        final JLabel errorHit = new JLabel();
         errorHit.setForeground(Color.RED);
         errorHit.setBounds(100, 15, 200, 30);
 
@@ -134,10 +144,46 @@ public class Entrance extends JFrame {
                     } else {
                         deleteSavePassword();
                     }
-                    new Query().queryFrame(util, username);
+                    new Query().queryFrame(util, username, null);
                 } else {
-                    errorHit.setText("用户名或密码或验证码非法");
-                    t4.setIcon( new ImageIcon(util.getImage(Paths.CAPTCHA, util.httpclient) ) );
+                    String cookie = util.getCookie();
+                    System.out.println("-----------------------------------" + cookie);
+                    if(cookie != null) {
+
+                        CookieStore cookieStore = new BasicCookieStore();
+                        BasicClientCookie bcookie = new BasicClientCookie("JSESSIONID", cookie);
+
+                        bcookie.setDomain("uems.sysu.edu.cn");
+                        bcookie.setPath("/jwxt");
+
+                        cookieStore.addCookie(bcookie);
+
+                        HttpContext localContext = new BasicHttpContext();
+
+                        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+
+                        HttpPost httppost = util.getHttpPost(Paths.MAIN);
+
+
+                        try {
+                            HttpResponse response = util.getHttpClient().execute(httppost, localContext);
+                            if(EntityUtils.toString(response.getEntity()).contains("中山大学普通本科教务系统")) {
+                                frame.setVisible(false);
+                                if(cbxkclb3.isSelected()) {
+                                    savePassword(username, password);
+                                } else {
+                                    deleteSavePassword();
+                                }
+                                new Query().queryFrame(util, username, localContext);
+                            }
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+
+                    } else {
+                        errorHit.setText("用户名或密码或验证码非法");
+                        t4.setIcon( new ImageIcon(util.getImage(Paths.CAPTCHA, util.getHttpClient()) ) );
+                    }
                 }
             }
         });
@@ -145,7 +191,7 @@ public class Entrance extends JFrame {
 
         t4.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
-                t4.setIcon( new ImageIcon(util.getImage(Paths.CAPTCHA, util.httpclient) ) );
+                t4.setIcon( new ImageIcon(util.getImage(Paths.CAPTCHA, util.getHttpClient()) ) );
             }
         });
         //退出时候注销
@@ -154,8 +200,8 @@ public class Entrance extends JFrame {
             public void run() {
                 try {
                     HttpGet httpget = new HttpGet(Paths.LOGOUT);
-                    util.httpclient.execute(httpget);
-                    util.httpclient.close();
+                    util.getHttpClient().execute(httpget);
+                    util.getHttpClient().close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

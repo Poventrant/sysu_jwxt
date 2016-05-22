@@ -22,13 +22,7 @@ import java.util.*;
  * Created by 枫叶 on 2016/1/19.
  */
 public class LoginUtil extends BaseUtil {
-
-    public static CloseableHttpClient httpclient = null;
     public static String rno = null;
-
-    LoginUtil() {
-        httpclient = getHttpClient();
-    }
 
     public Image getImage(String url, HttpClient httpclient) {
 
@@ -67,7 +61,7 @@ public class LoginUtil extends BaseUtil {
             params.add(new BasicNameValuePair("jcaptcha_response", captchaCode));
             httppost.setEntity(new UrlEncodedFormEntity(params));
 
-            HttpResponse response = httpclient.execute(httppost);
+            HttpResponse response = getHttpClient().execute(httppost);
             String reurl = response.getLastHeader("Location").getValue();
             if(reurl == null || reurl.equals("")) return false;
         } catch(Exception e) {
@@ -76,6 +70,24 @@ public class LoginUtil extends BaseUtil {
             httppost.releaseConnection();
         }
         return true;
+    }
+
+    public String getCookie() {
+        File file = new File(this.getClass().getResource("/backup").getFile());
+        if(file.exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(file));
+                String line = null;
+                while((line = br.readLine()) != null) {
+                    return line;
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
 }

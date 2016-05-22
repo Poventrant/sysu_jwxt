@@ -9,6 +9,7 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import javax.imageio.ImageIO;
@@ -30,7 +31,7 @@ import java.util.regex.Pattern;
  */
 public class Query extends JFrame {
 
-    public void queryFrame(LoginUtil util, String username) {
+    public void queryFrame(final LoginUtil util, final String username, final HttpContext localContext) {
 
         Font font1 = new Font("微软雅黑", Font.PLAIN, 13);
 
@@ -56,8 +57,8 @@ public class Query extends JFrame {
             e.printStackTrace();
         }
         frame.setResizable(true);
-        frame.setSize(820, 520);
-        frame.setMinimumSize(new Dimension(820, 520));
+        frame.setSize(880, 520);
+        frame.setMinimumSize(new Dimension(880, 520));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.pack();
@@ -69,7 +70,7 @@ public class Query extends JFrame {
         HttpResponse response = null;
         Vector model = new Vector();
         try {
-            response = util.httpclient.execute(httpget);
+            response = util.getHttpClient().execute(httpget, localContext);
             String jsonStr = EntityUtils.toString(response.getEntity());
 
             String pattern = "CODENAME:\\s*\"([0-9]{4}-[0-9]{4})\"";
@@ -84,25 +85,25 @@ public class Query extends JFrame {
             httpget.releaseConnection();
         }
         JPanel params = new JPanel(); //use FlowLayout
-        JComboBox cbxn = new JComboBox(model);
+        final JComboBox cbxn = new JComboBox(model);
         cbxn.setFont(font1);
         cbxn.setEditable(false);
 
-        JComboBox cbxq = new JComboBox(new SelectItem[]{new SelectItem("第一学期", "1"),new SelectItem("第二学期", "2"), new SelectItem("第三学期", "3")});
+        final JComboBox cbxq = new JComboBox(new SelectItem[]{new SelectItem("第一学期", "1"),new SelectItem("第二学期", "2"), new SelectItem("第三学期", "3")});
         cbxq.setFont(font1);
         cbxq.setEditable(false);
 
-        JComboBox cbpylb = new JComboBox(new SelectItem[]{new SelectItem("主修", "01"),new SelectItem("双专业", "03"), new SelectItem("双学位", "04"), new SelectItem("辅修", "02")});
+        final JComboBox cbpylb = new JComboBox(new SelectItem[]{new SelectItem("主修", "01"),new SelectItem("双专业", "03"), new SelectItem("双学位", "04"), new SelectItem("辅修", "02")});
         cbpylb.setFont(font1);
         cbpylb.setEditable(false);
 
-        JCheckBox cbxkclb0 = new JCheckBox("专必");   //11
+        final JCheckBox cbxkclb0 = new JCheckBox("专必");   //11
         cbxkclb0.setSelected(true);
-        JCheckBox cbxkclb1 = new JCheckBox("专选");   //21
+        final JCheckBox cbxkclb1 = new JCheckBox("专选");   //21
         cbxkclb1.setSelected(true);
-        JCheckBox cbxkclb2 = new JCheckBox("公必");   //10
+        final JCheckBox cbxkclb2 = new JCheckBox("公必");   //10
         cbxkclb2.setSelected(true);
-        JCheckBox cbxkclb3 = new JCheckBox("公选");   //30
+        final JCheckBox cbxkclb3 = new JCheckBox("公选");   //30
         cbxkclb3.setSelected(true);
 
         JButton queryBtn = new JButton("查  询");
@@ -141,7 +142,7 @@ public class Query extends JFrame {
 
 
         //----------------------------------------------------------------------------------------------------------------
-        JLabel credit_title0 = new JLabel("学年度第一学期完成情况");
+        final JLabel credit_title0 = new JLabel("学年度第一学期完成情况");
         JLabel credit_title1 = new JLabel("全部学年度学期完成情况");
         JLabel credit_title2 = new JLabel("主修专业毕业学分要求");
 
@@ -210,7 +211,7 @@ public class Query extends JFrame {
             reqEntity.setContentType("application/json");
             setReqHeader(httppost, "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj");
             httppost.setEntity(reqEntity);
-            HttpEntity entity = util.httpclient.execute(httppost).getEntity();
+            HttpEntity entity = util.getHttpClient().execute(httppost, localContext).getEntity();
             String pat = "result:\"([^\"]*)";
             Pattern reg = Pattern.compile(pat);
             Matcher m = reg.matcher(EntityUtils.toString(entity));
@@ -258,7 +259,7 @@ public class Query extends JFrame {
                     setReqHeader(httppost, "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj_list");
                     httppost.setEntity(reqEntity);
 
-                    HttpEntity entity = util.httpclient.execute(httppost).getEntity();
+                    HttpEntity entity = util.getHttpClient().execute(httppost, localContext).getEntity();
                     String postResult = EntityUtils.toString(entity);
 
                     HashMap<String, java.lang.Object> map = JsonUtil.jsonToMap(postResult);
@@ -309,7 +310,7 @@ public class Query extends JFrame {
                             entityStr1 = new StringEntity( PathsImpl.getLeftXf(username, mainXn, mainXq, mainPylb));//左边学分
 
 
-                    ArrayList<HashMap<String, String>> lmapjd = httpGetAllXFJD(entityStr0, util, Paths.ALLJD, "jdStore");
+                    ArrayList<HashMap<String, String>> lmapjd = httpGetAllXFJD(entityStr0, util, Paths.ALLJD, "jdStore", localContext);
                     int len = 1;
                     for(HashMap<String, String> m : lmapjd) {
                         Set<Map.Entry<String, String>> es = m.entrySet();
@@ -325,7 +326,7 @@ public class Query extends JFrame {
                         leftRows[len++] = temp;
                     }
 
-                    ArrayList<HashMap<String, String>> lmapxf = httpGetAllXFJD(entityStr0, util, Paths.ALLXF, "jdStore");
+                    ArrayList<HashMap<String, String>> lmapxf = httpGetAllXFJD(entityStr0, util, Paths.ALLXF, "jdStore", localContext);
                     len = 1;
                     for(HashMap<String, String> m : lmapxf) {
                         Set<Map.Entry<String, String>> es = m.entrySet();
@@ -346,7 +347,7 @@ public class Query extends JFrame {
                     StringEntity entityStr0 = new StringEntity(PathsImpl.getMidXf(username, mainPylb)),//学分
                     entityStr1 = new StringEntity(PathsImpl.getMidJd(username)); //绩点
 
-                    ArrayList<HashMap<String, String>> lmapallxf = httpGetAllXFJD(entityStr0, util, Paths.ALLXF, "allXfStore");
+                    ArrayList<HashMap<String, String>> lmapallxf = httpGetAllXFJD(entityStr0, util, Paths.ALLXF, "allXfStore", localContext);
                     int len = 1;
                     for(HashMap<String, String> m : lmapallxf) {
                         Set<Map.Entry<String, String>> es = m.entrySet();
@@ -362,7 +363,7 @@ public class Query extends JFrame {
                         midRows[len++] = temp;
                     }
 
-                    ArrayList<HashMap<String, String>> lmapalljd = httpGetAllXFJD(entityStr1, util, Paths.ALLJD, "allJdStore");
+                    ArrayList<HashMap<String, String>> lmapalljd = httpGetAllXFJD(entityStr1, util, Paths.ALLJD, "allJdStore", localContext);
                     len = 1;
                     for(HashMap<String, String> m : lmapalljd) {
                         Set<Map.Entry<String, String>> es = m.entrySet();
@@ -380,7 +381,7 @@ public class Query extends JFrame {
                 String[][] rightRows = new String[5][2];
                 try {
                     StringEntity entityStr = new StringEntity(PathsImpl.getRight(mainPylb, getGrade(), getProNo()));
-                    ArrayList<HashMap<String, String>> lmapallxyxf = httpGetAllXFJD(entityStr, util, Paths.ZYXF, "zxzyxfStore");
+                    ArrayList<HashMap<String, String>> lmapallxyxf = httpGetAllXFJD(entityStr, util, Paths.ZYXF, "zxzyxfStore", localContext);
 
                     int len = 1;
                     for(HashMap<String, String> m : lmapallxyxf) {
@@ -415,7 +416,7 @@ public class Query extends JFrame {
                     reqEntity.setContentType("application/json");
                     setReqHeader(httppost, "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj_list");
                     httppost.setEntity(reqEntity);
-                    HttpEntity entity = util.httpclient.execute(httppost).getEntity();
+                    HttpEntity entity = util.getHttpClient().execute(httppost, localContext).getEntity();
                     String pat = "str:\"([^\"]*)";
                     Pattern reg = Pattern.compile(pat);
                     Matcher m = reg.matcher(EntityUtils.toString(entity));
@@ -474,14 +475,15 @@ public class Query extends JFrame {
         req.setHeader("workitemid", null);
     }
 
-    private ArrayList<HashMap<String, String>> httpGetAllXFJD(StringEntity reqEntity,LoginUtil util, String url, String storeKey) {
+    private ArrayList<HashMap<String, String>> httpGetAllXFJD(StringEntity reqEntity,LoginUtil util, String url, String storeKey, HttpContext localContext) {
         HttpPost httppost = util.getHttpPost(url);
         reqEntity.setContentType("application/json");
         setReqHeader(httppost,  "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj_list");
         httppost.setEntity(reqEntity);
         try {
-            HttpResponse response = util.httpclient.execute(httppost);
+            HttpResponse response = util.getHttpClient().execute(httppost, localContext);
             String entityStr = EntityUtils.toString(response.getEntity());
+            System.out.println(entityStr);
             HashMap<String, java.lang.Object> map = JsonUtil.jsonToMap(entityStr);
             HashMap<String, java.lang.Object> map0 = (HashMap<String, java.lang.Object>) map.get("body");
             HashMap<String, java.lang.Object> map1 = (HashMap<String, java.lang.Object>) map0.get("dataStores");
