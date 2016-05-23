@@ -147,7 +147,6 @@ public class Entrance extends JFrame {
                     new Query().queryFrame(util, username, null);
                 } else {
                     String cookie = util.getCookie();
-                    System.out.println("-----------------------------------" + cookie);
                     if(cookie != null) {
 
                         CookieStore cookieStore = new BasicCookieStore();

@@ -2,19 +2,16 @@ package com.pwq.httpclient.ui;
 
 import com.pwq.httpclient.BaseUtil;
 import com.pwq.httpclient.JsonUtil;
-import org.apache.commons.codec.binary.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,9 +28,9 @@ public class CourseTable extends JFrame {
     JFrame frame = new JFrame();
     JLabel course = null;
 
-    public void renderTable(String xn, String xq) {
+    public void renderTable(String xn, String xq, HttpContext localContext) {
         if (course != null) {
-            reshow(xn, xq);
+            reshow(xn, xq, localContext );
             return;
         }
         Font font1 = new Font("微软雅黑", Font.PLAIN, 11);
@@ -52,14 +49,14 @@ public class CourseTable extends JFrame {
         frame.pack();
         frame.setLocationRelativeTo(null);
 
-        course = new JLabel(htmlBegin + appendTime(getHtml(xn, xq)) + htmlEnd);
+        course = new JLabel(htmlBegin + appendTime(getHtml(xn, xq, localContext)) + htmlEnd);
         frame.add(course);
 
         frame.pack();
         frame.setVisible(true);
     }
 
-    String getHtml(String xn, String xq) {
+    String getHtml(String xn, String xq, HttpContext localContext) {
         HttpClient httpclient = BaseUtil.getHttpClient();
 
         HttpPost httppost = BaseUtil.getHttpPost(Paths.COURSES);
@@ -68,7 +65,7 @@ public class CourseTable extends JFrame {
             reqEntity = new StringEntity(PathsImpl.getCourses(xn, xq));
             BaseUtil.setReqHeader(httppost, "http://uems.sysu.edu.cn/jwxt/sysu/xk/xskbcx/xskbcx.jsp?xnd=" + xn + "&xq=" + xq);
             httppost.setEntity(reqEntity);
-            HttpEntity entity = httpclient.execute(httppost).getEntity();
+            HttpEntity entity = httpclient.execute(httppost, localContext).getEntity();
             HashMap<String, Object> map = JsonUtil.jsonToMap(EntityUtils.toString(entity));
             HashMap<String, java.lang.Object> map0 = (HashMap<String, java.lang.Object>) map.get("body");
             HashMap<String, java.lang.Object> map1 = (HashMap<String, java.lang.Object>) map0.get("parameters");
@@ -92,8 +89,8 @@ public class CourseTable extends JFrame {
         return html;
     }
 
-    private void reshow(String xn, String xq) {
-        course.setText(htmlBegin + appendTime(getHtml(xn, xq)) + htmlEnd);
+    private void reshow(String xn, String xq, HttpContext localContext) {
+        course.setText(htmlBegin + appendTime(getHtml(xn, xq, localContext)) + htmlEnd);
         frame.pack();
         Dimension screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = frame.getSize();

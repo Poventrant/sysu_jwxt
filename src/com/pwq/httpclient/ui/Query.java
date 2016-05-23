@@ -29,9 +29,10 @@ import java.util.regex.Pattern;
 /**
  * Created by 枫叶 on 2016/1/20.
  */
+@SuppressWarnings("all")
 public class Query extends JFrame {
 
-    public void queryFrame(final LoginUtil util, final String username, final HttpContext localContext) {
+    public void queryFrame(final LoginUtil util, String username, final HttpContext localContext) {
 
         Font font1 = new Font("微软雅黑", Font.PLAIN, 13);
 
@@ -107,6 +108,7 @@ public class Query extends JFrame {
         cbxkclb3.setSelected(true);
 
         JButton queryBtn = new JButton("查  询");
+        JButton queryCourse = new JButton("课  表");
 
         JLabel t0 = new JLabel("学年度 ");
         JLabel t1 = new JLabel("    学期 ");
@@ -125,6 +127,7 @@ public class Query extends JFrame {
         params.add(cbxkclb2);
         params.add(cbxkclb3);
         params.add(queryBtn);
+        params.add(queryCourse);
         frame.add(params, BorderLayout.NORTH);
 
         final MyTableModel tableModel = new MyTableModel();
@@ -217,6 +220,9 @@ public class Query extends JFrame {
             Matcher m = reg.matcher(EntityUtils.toString(entity));
             if(m.find()) {
                 String temp[] = m.group(1).split(",");
+                if(username == null || username.equals("")) {
+                    username = temp[0];
+                }
                 setGrade(temp[1]);      //年级级数
                 setProNo(temp[2]);      //专业编号
             }
@@ -227,6 +233,19 @@ public class Query extends JFrame {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        final CourseTable  courseTable = new CourseTable();
+
+        queryCourse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String mainXn = ((SelectItem) cbxn.getSelectedItem()).getValue(),
+                        mainXq = ((SelectItem) cbxq.getSelectedItem()).getValue();
+                courseTable.renderTable(mainXn, mainXq, localContext);
+            }
+        });
+
+        final String finalUsername = username;
 
         queryBtn.addActionListener(new ActionListener() {
             @Override
@@ -306,8 +325,8 @@ public class Query extends JFrame {
                 //下边栏-----------------------------------left-----------------------------------------------------------------------------------------------------------
                 String[][] leftRows = new String[5][3];
                 try {
-                    StringEntity entityStr0 = new StringEntity(PathsImpl.getLeftJd(username, mainXn, mainXq)),//左边绩点
-                            entityStr1 = new StringEntity( PathsImpl.getLeftXf(username, mainXn, mainXq, mainPylb));//左边学分
+                    StringEntity entityStr0 = new StringEntity(PathsImpl.getLeftJd(finalUsername, mainXn, mainXq)),//左边绩点
+                            entityStr1 = new StringEntity( PathsImpl.getLeftXf(finalUsername, mainXn, mainXq, mainPylb));//左边学分
 
 
                     ArrayList<HashMap<String, String>> lmapjd = httpGetAllXFJD(entityStr0, util, Paths.ALLJD, "jdStore", localContext);
@@ -344,8 +363,8 @@ public class Query extends JFrame {
                 //-------------------------------------middle----------------------------------------------------------------------------------------------------------------
                 String[][] midRows = new String[5][3];
                 try {
-                    StringEntity entityStr0 = new StringEntity(PathsImpl.getMidXf(username, mainPylb)),//学分
-                    entityStr1 = new StringEntity(PathsImpl.getMidJd(username)); //绩点
+                    StringEntity entityStr0 = new StringEntity(PathsImpl.getMidXf(finalUsername, mainPylb)),//学分
+                    entityStr1 = new StringEntity(PathsImpl.getMidJd(finalUsername)); //绩点
 
                     ArrayList<HashMap<String, String>> lmapallxf = httpGetAllXFJD(entityStr0, util, Paths.ALLXF, "allXfStore", localContext);
                     int len = 1;
@@ -411,7 +430,7 @@ public class Query extends JFrame {
                     for(int i = 0; i < 4; ++ i) {
                         params[2][i] = leftRows[i+1][1];
                     }
-                    StringEntity reqEntity = new StringEntity( PathsImpl.getCountAll(params, username,mainXn, mainXq, mainPylb ) );
+                    StringEntity reqEntity = new StringEntity( PathsImpl.getCountAll(params, finalUsername,mainXn, mainXq, mainPylb ) );
                     httppost = util.getHttpPost(Paths.COUNTALL);
                     reqEntity.setContentType("application/json");
                     setReqHeader(httppost, "http://uems.sysu.edu.cn/jwxt/forward.action?path=/sysu/xscj/xscjcx/xsgrcj_list");
@@ -483,7 +502,6 @@ public class Query extends JFrame {
         try {
             HttpResponse response = util.getHttpClient().execute(httppost, localContext);
             String entityStr = EntityUtils.toString(response.getEntity());
-            System.out.println(entityStr);
             HashMap<String, java.lang.Object> map = JsonUtil.jsonToMap(entityStr);
             HashMap<String, java.lang.Object> map0 = (HashMap<String, java.lang.Object>) map.get("body");
             HashMap<String, java.lang.Object> map1 = (HashMap<String, java.lang.Object>) map0.get("dataStores");
