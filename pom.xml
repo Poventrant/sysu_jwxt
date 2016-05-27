@@ -8,7 +8,7 @@
   <name>7 Maven Webapp</name>
   <url>http://maven.apache.org</url>
   <build>
-    <finalName>7</finalName>
+    <finalName>sysu_jwxt</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
