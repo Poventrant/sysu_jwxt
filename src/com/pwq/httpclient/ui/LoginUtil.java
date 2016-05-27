@@ -10,13 +10,12 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Created by 枫叶 on 2016/1/19.
@@ -73,21 +72,18 @@ public class LoginUtil extends BaseUtil {
     }
 
     public String getCookie() {
-        File file = new File(this.getClass().getResource("/backup").getFile());
-        if(file.exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader(file));
-                String line = null;
-                while((line = br.readLine()) != null) {
-                    return line;
-                }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            InputStream fileStream = this.getClass().getResourceAsStream("/backup");
+            BufferedReader br = new BufferedReader(new InputStreamReader(fileStream));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while((line = br.readLine()) != null) {
+                sb.append(line);
             }
+            return sb.toString();
+        } catch (IOException e) {
+            return null;
         }
-        return null;
     }
 
 }
